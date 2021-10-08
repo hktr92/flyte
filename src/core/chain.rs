@@ -50,7 +50,7 @@ impl FilesystemChain {
         future::join_all(fut).await;
     }
 
-    async fn write_file(&self, path: &String, contents: &Option<Bytes>) {
+    async fn write_file(&self, path: &String, contents: Option<&Bytes>) {
         let mut fut = vec![];
         for system in self.systems.iter() {
             fut.push(system.write_file(path, contents));

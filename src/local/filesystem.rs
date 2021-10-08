@@ -57,9 +57,7 @@ impl Filesystem for LocalFilesystem {
         Ok(std::fs::create_dir_all(Path::new(path))?)
     }
 
-    async fn write_file(&self, path: &String, contents: Bytes) -> anyhow::Result<()> {
-        let file = File::create(path)?.write_all(contents.as_ref());
-
-        Ok(file?)
+    async fn write_file(&self, path: &String, contents: Option<&Bytes>) -> anyhow::Result<()> {
+        Ok(File::create(path)?.write_all(contents.unwrap().as_ref())?)
     }
 }

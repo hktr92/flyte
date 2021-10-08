@@ -16,5 +16,5 @@ pub trait Filesystem {
     async fn create_directory(&self, path: &String) -> anyhow::Result<()>;
 
     //
-    async fn write_file(&self, path: &String, contents: &Option<Bytes>) -> anyhow::Result<()>;
+    async fn write_file(&self, path: &String, contents: Option<&Bytes>) -> anyhow::Result<()>;
 }

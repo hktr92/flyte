@@ -142,11 +142,11 @@ impl Filesystem for S3Filesystem {
         Ok(())
     }
 
-    async fn write_file(&self, path: &String, contents: Bytes) -> anyhow::Result<()> {
+    async fn write_file(&self, path: &String, contents: Option<&Bytes>) -> anyhow::Result<()> {
         let req = PutObjectRequest {
             bucket: self.bucket.clone().into(),
             key: path.into(),
-            body: Some(contents.into()),
+            body: contents.into(),
             acl: self.acl.into(),
             cache_control: self.cache_control.into(),
             content_type: self.content_type.into(),
