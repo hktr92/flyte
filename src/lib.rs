@@ -5,3 +5,6 @@ pub mod s3;
 
 mod core;
 mod util;
+
+pub use crate::core::Filesystem;
+pub use crate::core::FilesystemChain;

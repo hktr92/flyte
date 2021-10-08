@@ -1,5 +1,6 @@
 use crate::local::LocalFilesystem;
 
+#[derive(Default)]
 pub struct LocalFilesystemBuilder {
     file_permissions: Option<u32>,
     directory_permissions: Option<u32>,

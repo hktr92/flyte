@@ -7,12 +7,9 @@ use rusoto_s3::{
     ObjectIdentifier, PutObjectRequest, S3Client, S3,
 };
 
-use crate::flyte::util::Node;
-use crate::util::Node;
-use crate::Filesystem;
-
-use super::util::S3Node;
 use crate::core::Filesystem;
+use crate::s3::util::S3Node;
+use crate::util::Node;
 
 #[derive(Clone, Default)]
 pub struct S3Filesystem {
@@ -88,7 +85,7 @@ impl S3Filesystem {
 
 #[async_trait]
 impl Filesystem for S3Filesystem {
-    async fn delete_file(&self, path: &String) {
+    async fn delete_file(&self, path: &String) -> anyhow::Result<()> {
         let req = DeleteObjectRequest {
             bucket: self.bucket.clone().into(),
             key: path.into(),
@@ -97,10 +94,10 @@ impl Filesystem for S3Filesystem {
 
         self.client.delete_object(req).await?;
 
-        ()
+        Ok(())
     }
 
-    async fn delete_directory(&self, path: &String) {
+    async fn delete_directory(&self, path: &String) -> anyhow::Result<()> {
         let nodes = self
             .list_directory(path)
             .await?
@@ -122,7 +119,7 @@ impl Filesystem for S3Filesystem {
 
         self.client.delete_objects(req).await?;
 
-        ()
+        Ok(())
     }
 
     async fn list_directory(&self, path: &String) -> anyhow::Result<Vec<Node>> {
@@ -141,11 +138,11 @@ impl Filesystem for S3Filesystem {
     }
 
     // aws does not support directories. it's a plain object storage.
-    async fn create_directory(&self, path: &String) {
-        ()
+    async fn create_directory(&self, path: &String) -> anyhow::Result<()> {
+        Ok(())
     }
 
-    async fn write_file(&self, path: &String, contents: Bytes) {
+    async fn write_file(&self, path: &String, contents: Bytes) -> anyhow::Result<()> {
         let req = PutObjectRequest {
             bucket: self.bucket.clone().into(),
             key: path.into(),
@@ -158,6 +155,6 @@ impl Filesystem for S3Filesystem {
 
         self.client.put_object(req).await?;
 
-        ()
+        Ok(())
     }
 }
