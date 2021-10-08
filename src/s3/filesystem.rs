@@ -13,6 +13,7 @@ use crate::util::Node;
 pub struct S3Filesystem {
     bucket: String,
     client: S3Client,
+    prefix: Option<String>,
 
     // TODO -- unify this with Filesystem
     acl: Option<String>,
@@ -24,6 +25,7 @@ impl S3Filesystem {
     pub fn new(
         bucket: String,
         client: S3Client,
+        prefix: Option<String>,
         acl: Option<String>,
         cache_control: Option<String>,
         content_type: Option<String>,
@@ -31,6 +33,7 @@ impl S3Filesystem {
         Self {
             bucket,
             client,
+            prefix,
             acl,
             cache_control,
             content_type,
@@ -40,6 +43,7 @@ impl S3Filesystem {
     pub fn new_boxed(
         bucket: String,
         client: S3Client,
+        prefix: Option<String>,
         acl: Option<String>,
         cache_control: Option<String>,
         content_type: Option<String>,
@@ -47,6 +51,7 @@ impl S3Filesystem {
         Box::new(S3Filesystem::new(
             bucket,
             client,
+            prefix,
             acl,
             cache_control,
             content_type,
@@ -79,6 +84,19 @@ impl S3Filesystem {
             continuation_token: response.next_continuation_token,
         })
     }
+
+    // TODO -- i don't like how this looks. needs to have valid path.
+    fn build_path(&self, path: &String) -> String {
+        let mut path_buffer = String::new();
+
+        if let Some(prefix) = &self.prefix {
+            path_buffer.push_str(prefix.clone().as_str());
+        }
+
+        path_buffer.push_str(path.clone().as_str());
+
+        path_buffer
+    }
 }
 
 #[async_trait]
@@ -86,7 +104,7 @@ impl Filesystem for S3Filesystem {
     async fn delete_file(&self, path: &String) -> anyhow::Result<()> {
         let req = DeleteObjectRequest {
             bucket: self.bucket.clone().into(),
-            key: path.into(),
+            key: self.build_path(path).into(),
             ..Default::default()
         };
 
@@ -97,7 +115,7 @@ impl Filesystem for S3Filesystem {
 
     async fn delete_directory(&self, path: &String) -> anyhow::Result<()> {
         let nodes = self
-            .list_directory(path)
+            .list_directory(&self.build_path(path))
             .await?
             .into_iter()
             .map(|node| ObjectIdentifier {
@@ -122,7 +140,7 @@ impl Filesystem for S3Filesystem {
 
     async fn list_directory(&self, path: &String) -> anyhow::Result<Vec<Node>> {
         let mut nodes: Vec<Node> = vec![];
-        let mut result = self.do_list_nodes(path, None).await?;
+        let mut result = self.do_list_nodes(&self.build_path(path), None).await?;
 
         while result.truncated {
             nodes.append(&mut result.nodes);
@@ -146,7 +164,7 @@ impl Filesystem for S3Filesystem {
 
         let req = PutObjectRequest {
             bucket: self.bucket.clone().into(),
-            key: path.into(),
+            key: self.build_path(path).into(),
             body: Some(body),
             acl: self.acl.clone(),
             cache_control: self.cache_control.clone(),

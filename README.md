@@ -8,5 +8,8 @@ it's still work in progress, expect bugs and breaking changes.
 - `local` 
 - `s3` (depends on: `rusoto_s3`)
 
+## usage
+you can either use filesystems directly or use the `FilesystemChain` to perform same operation across multiple filesystems.
+
 ## license
 see [LICENSE.md](LICENSE.md)

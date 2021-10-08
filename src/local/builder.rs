@@ -4,6 +4,7 @@ use crate::local::LocalFilesystem;
 pub struct LocalFilesystemBuilder {
     file_permissions: Option<u32>,
     directory_permissions: Option<u32>,
+    prefix: Option<String>,
 }
 
 impl LocalFilesystemBuilder {
@@ -13,13 +14,18 @@ impl LocalFilesystemBuilder {
         }
     }
 
-    pub fn with_file_permissions(&mut self, value: u32) -> &mut Self {
+    pub fn with_file_permissions(mut self, value: u32) -> LocalFilesystemBuilder {
         self.file_permissions = Some(value);
         self
     }
 
-    pub fn with_directory_permissions(&mut self, value: u32) -> &mut Self {
+    pub fn with_directory_permissions(mut self, value: u32) -> LocalFilesystemBuilder {
         self.directory_permissions = Some(value);
+        self
+    }
+
+    pub fn with_prefix(mut self, value: String) -> LocalFilesystemBuilder {
+        self.prefix = Some(value);
         self
     }
 
@@ -30,6 +36,10 @@ impl LocalFilesystemBuilder {
 
 impl Into<LocalFilesystem> for LocalFilesystemBuilder {
     fn into(self) -> LocalFilesystem {
-        LocalFilesystem::new(self.file_permissions, self.directory_permissions)
+        LocalFilesystem::new(
+            self.prefix,
+            self.file_permissions,
+            self.directory_permissions,
+        )
     }
 }
