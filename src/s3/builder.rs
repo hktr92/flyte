@@ -39,7 +39,7 @@ impl S3FilesystemBuilder {
         self
     }
 
-    fn into_boxed(self) -> Box<S3Filesystem> {
+    pub fn into_boxed(self) -> Box<S3Filesystem> {
         Box::new(self.into())
     }
 }

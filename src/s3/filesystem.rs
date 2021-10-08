@@ -1,10 +1,8 @@
-use std::path::Path;
-
 use async_trait::async_trait;
 use bytes::Bytes;
 use rusoto_s3::{
-    Delete, DeleteObjectRequest, DeleteObjectsRequest, ListObjectsV2Request, Object,
-    ObjectIdentifier, PutObjectRequest, S3Client, StreamingBody, S3,
+    Delete, DeleteObjectRequest, DeleteObjectsRequest, ListObjectsV2Request, ObjectIdentifier,
+    PutObjectRequest, S3Client, StreamingBody, S3,
 };
 
 use crate::core::Filesystem;
@@ -138,7 +136,7 @@ impl Filesystem for S3Filesystem {
     }
 
     // aws does not support directories. it's a plain object storage.
-    async fn create_directory(&self, path: &String) -> anyhow::Result<()> {
+    async fn create_directory(&self, _path: &String) -> anyhow::Result<()> {
         Ok(())
     }
 

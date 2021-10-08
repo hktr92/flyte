@@ -1,8 +1,6 @@
 pub use self::builder::S3FilesystemBuilder;
 pub use self::filesystem::S3Filesystem;
 
-use crate::util::Node;
-
 pub(crate) mod builder;
 pub(crate) mod filesystem;
 

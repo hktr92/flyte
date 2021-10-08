@@ -23,7 +23,7 @@ impl LocalFilesystemBuilder {
         self
     }
 
-    fn into_boxed(self) -> Box<LocalFilesystem> {
+    pub fn into_boxed(self) -> Box<LocalFilesystem> {
         Box::new(self.into())
     }
 }

@@ -14,7 +14,7 @@ impl FilesystemChain {
         Self { systems }
     }
 
-    async fn delete_file(&self, path: &String) {
+    pub async fn delete_file(&self, path: &String) {
         let mut fut = vec![];
         for system in self.systems.iter() {
             fut.push(system.delete_file(path));
@@ -23,7 +23,7 @@ impl FilesystemChain {
         future::join_all(fut).await;
     }
 
-    async fn delete_directory(&self, path: &String) {
+    pub async fn delete_directory(&self, path: &String) {
         let mut fut = vec![];
         for system in self.systems.iter() {
             fut.push(system.delete_directory(path));
@@ -32,7 +32,7 @@ impl FilesystemChain {
         future::join_all(fut).await;
     }
 
-    async fn list_directory(&self, path: &String) -> Result<Vec<Vec<Node>>> {
+    pub async fn list_directory(&self, path: &String) -> Result<Vec<Vec<Node>>> {
         let mut nodes = vec![];
         for system in self.systems.iter() {
             nodes.push(system.list_directory(path).await?);
@@ -41,7 +41,7 @@ impl FilesystemChain {
         Ok(nodes)
     }
 
-    async fn create_directory(&self, path: &String) {
+    pub async fn create_directory(&self, path: &String) {
         let mut fut = vec![];
         for system in self.systems.iter() {
             fut.push(system.create_directory(path));
@@ -50,7 +50,7 @@ impl FilesystemChain {
         future::join_all(fut).await;
     }
 
-    async fn write_file(&self, path: &String, contents: Option<&Bytes>) {
+    pub async fn write_file(&self, path: &String, contents: Option<&Bytes>) {
         let mut fut = vec![];
         for system in self.systems.iter() {
             fut.push(system.write_file(path, contents));
