@@ -4,14 +4,14 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use rusoto_s3::{
     Delete, DeleteObjectRequest, DeleteObjectsRequest, ListObjectsV2Request, Object,
-    ObjectIdentifier, PutObjectRequest, S3Client, S3,
+    ObjectIdentifier, PutObjectRequest, S3Client, StreamingBody, S3,
 };
 
 use crate::core::Filesystem;
 use crate::s3::util::S3Node;
 use crate::util::Node;
 
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct S3Filesystem {
     bucket: String,
     client: S3Client,
@@ -72,7 +72,7 @@ impl S3Filesystem {
             .contents
             .unwrap_or(vec![])
             .into_iter()
-            .map(|object| Node(object.key?))
+            .map(|object| Node(object.key.unwrap()))
             .collect::<Vec<Node>>();
 
         Ok(S3Node {
@@ -128,7 +128,7 @@ impl Filesystem for S3Filesystem {
 
         while result.truncated {
             nodes.append(&mut result.nodes);
-            result = self.do_list_nodes(path, result.continuation_token)?;
+            result = self.do_list_nodes(path, result.continuation_token).await?;
         }
 
         // TODO: maybe this is not required
@@ -143,13 +143,16 @@ impl Filesystem for S3Filesystem {
     }
 
     async fn write_file(&self, path: &String, contents: Option<&Bytes>) -> anyhow::Result<()> {
+        let bytes = contents.unwrap();
+        let body = StreamingBody::from(bytes.to_vec());
+
         let req = PutObjectRequest {
             bucket: self.bucket.clone().into(),
             key: path.into(),
-            body: contents.into(),
-            acl: self.acl.into(),
-            cache_control: self.cache_control.into(),
-            content_type: self.content_type.into(),
+            body: Some(body),
+            acl: self.acl.clone(),
+            cache_control: self.cache_control.clone(),
+            content_type: self.content_type.clone(),
             ..Default::default()
         };
 

@@ -2,6 +2,7 @@ use rusoto_s3::S3Client;
 
 use crate::s3::S3Filesystem;
 
+#[derive(Default)]
 pub struct S3FilesystemBuilder {
     bucket: Option<String>,
     client: Option<S3Client>,
